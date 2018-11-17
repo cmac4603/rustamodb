@@ -1,0 +1,9 @@
+[package]
+name = "rustamodb"
+version = "0.0.1"
+authors = ["Colin MacRae <cmac4603@users.noreply.github.com>"]
+
+[dependencies]
+lazy_static = "1.2.0"
+rusoto_core = "0.32.0"
+rusoto_dynamodb = "0.32.0"
