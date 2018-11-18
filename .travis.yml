@@ -7,11 +7,14 @@ matrix:
     - rust: nightly
   include:
     - rust: stable
-      after_success:
-        - cargo login $CARGO_TOKEN
-        - cargo publish
     - rust: beta
     - rust: nightly
-branches:
-  only:
-    - master
+  fast_finish: true
+
+deploy:
+  provider: cargo
+  token:
+    secure: tlm4Q/kf3Ap+RdhEpzdP3oo9vkbDbnen7OyWIS8DFRoFCiyR8Z56vX5knAhn+Oj78V5umhKbEZ1g1zHLEsvEL5be4XGlD9e0CkEVB+870Q/p9Rmo2hGyifD40WRPAkLM187bo8ErBDQoeXNpwup+XIHdpCJWkW5WMXsYJFtMwu1RmAgHrlGJFPZkpcYHsN4WnPQh0O+5fKJZRIcxI3Q9KJhpb/JzHdTY1iTMAvC+rH5o6nXhCwRQLZi9/5jq9e02KLmVCv4QsxPpkmAUOc6Y8xeBxp3gr+Z5KZE1DZWTASV/3hg/sGC7FL5gWYFZM8/dO7ipZjVNjIsKL/mXHU7OIl1E7oWkORv04edojFwYn6c0hNp2IVG0eipo4VzELKqgWkidAYDrec752HunMEWAR3i1stU6lXSSX0h3fdCW9w285uFtZFuoRd9MVe2zyoEcukNnV+uEximklXUEjkjVECvTrFH3GRG0H4cUJ4JdIARssPx1hj3ahrgYDeNQmgsoX5gXqbeDG43MQfvXHJ1e+DNRWsrkNxc3iGUvPxR1zkcO3qv8gjzeYIwL9qaUHifz0COw3oKaKvlqf35klgvVQT7QypNRVYCWrpbjj2ajHVYvKk8cJi5gHoab6JB4zuyjzmyFT9Rkcq3gXsQsf1LJL6ppqLR1Li5ynl5EBw4USkI=
+  on:
+    tags: true
+    condition: $TRAVIS_TAG =~ [0-9]+\.[0-9]+\.[0-9]+
