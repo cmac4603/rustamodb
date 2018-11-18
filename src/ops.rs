@@ -40,17 +40,13 @@ pub type AddErr = rusoto_dynamodb::PutItemError;
 pub type Del = rusoto_dynamodb::DeleteItemOutput;
 pub type DelErr = rusoto_dynamodb::DeleteItemError;
 
-pub struct GetItem {
-    pub key: HashMap<String, AttributeValue>,
-}
+type AttributeMap = HashMap<String, AttributeValue>;
 
-pub struct AddItem {
-    pub item: HashMap<String, AttributeValue>,
-}
+pub struct GetItem { pub key: AttributeMap }
 
-pub struct DelItem {
-    pub key: HashMap<String, AttributeValue>,
-}
+pub struct AddItem { pub item: AttributeMap }
+
+pub struct DelItem { pub key: AttributeMap }
 
 pub fn scan(table_name: TableName) -> Result<Scan, ScanErr> {
     let scan_input: ScanInput = ScanInput {

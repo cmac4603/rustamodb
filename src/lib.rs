@@ -6,18 +6,21 @@
 //! # Examples
 //! 
 //! ```
-//! use rustamodb;
-//! 
 //! fn main() {
-//!     match rustamodb::scan(&"my_dynamodb_table") {
-//!         Some(ref items_list) => {
-//!            for item in items_list {
-//!                 print_ln!("{:?}", item);
-//!            }
-//!         },
-//!         None => (),
-//!     }
-//! }
+//!    match rustamodb::scan(&"my_dynamodb_table") {
+//!        Ok(db_scan) => {
+//!            match db_scan.items {
+//!                Some(ref items_list) => {
+//!                    for item in items_list {
+//!                        println!("{:?}", item);
+//!                    };
+//!                },
+//!                None => println!("no items in db!"),
+//!            };
+//!        },
+//!        Err(_) => (),
+//!    }
+//!}
 //! ```
 #[macro_use]
 extern crate lazy_static;
