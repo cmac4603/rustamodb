@@ -7,7 +7,6 @@ keywords = ["dynamo", "dynamodb", "aws", "nosql"]
 categories = ["database", "data-structures"]
 repository = "https://github.com/cmac4603/rustamodb"
 readme = "README.md"
-documentation = "https://docs.rs/rustamodb/"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
