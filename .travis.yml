@@ -9,14 +9,9 @@ matrix:
     - rust: stable
       after_success:
         - cargo login $CARGO_TOKEN
-        # - cargo publish
+        - cargo publish
     - rust: beta
-    - rust: nightly-2018-08-17
-      env: CLIPPY_AND_COMPILE_TESTS=YESPLEASE
-      script:
-        - rustup component add clippy-preview
-        - cargo clippy
-
+    - rust: nightly
 branches:
   only:
     - master
