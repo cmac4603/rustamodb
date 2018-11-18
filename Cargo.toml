@@ -1,6 +1,6 @@
 [package]
 name = "rustamodb"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Colin MacRae <cmac4603@users.noreply.github.com>"]
 description = "A rust library for AWS DynamoDB."
 license = "MIT OR Apache-2.0"
