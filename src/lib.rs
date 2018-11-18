@@ -25,9 +25,10 @@ extern crate rusoto_dynamodb;
 mod ops;
 
 pub use self::ops::{
-    AttributeMap, Attributes,
-    scan, Scan, ScanErr,
-    get_item, Get, GetItem, GetErr,
+    AttributeMap,
+    scan, Scan, ScanErr, RustamoDbScanOutput,
+    get_item, Get, GetItem, GetErr, RustamoDbGetOutput,
     add_item, Add, AddItem, AddErr,
     del_item, Del, DelItem, DelErr,
+    RustamoDbError,
 };

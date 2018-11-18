@@ -41,7 +41,11 @@ pub type Del = rusoto_dynamodb::DeleteItemOutput;
 pub type DelErr = rusoto_dynamodb::DeleteItemError;
 
 pub type AttributeMap = HashMap<String, AttributeValue>;
-pub type Attributes = Vec<AttributeMap>;
+
+pub type RustamoDbScanOutput = Vec<AttributeMap>;
+pub type RustamoDbGetOutput = AttributeMap;
+
+pub type RustamoDbError = String;
 
 pub struct GetItem { pub key: AttributeMap }
 
@@ -49,7 +53,7 @@ pub struct AddItem { pub item: AttributeMap }
 
 pub struct DelItem { pub key: AttributeMap }
 
-pub fn scan(table_name: TableName) -> Result<Vec<AttributeMap>, String> {
+pub fn scan(table_name: TableName) -> Result<RustamoDbScanOutput, RustamoDbError> {
     let scan_input: ScanInput = ScanInput {
         table_name: table_name.to_string(),
         ..Default::default()
@@ -65,13 +69,21 @@ pub fn scan(table_name: TableName) -> Result<Vec<AttributeMap>, String> {
     }
 }
 
-pub fn get_item(table_name: TableName, attrs: GetItem) -> Result<Get, GetErr> {
+pub fn get_item(table_name: TableName, attrs: GetItem) -> Result<RustamoDbGetOutput, RustamoDbError> {
     let get_item_input: GetItemInput = GetItemInput {
         table_name: table_name.to_string(),
         key: attrs.key,
         ..Default::default()
     };
-    ddb_conn.lock().unwrap().get_item(&get_item_input).sync()
+    match ddb_conn.lock().unwrap().get_item(&get_item_input).sync() {
+        Ok(get_output) => {
+            match get_output.item {
+                Some(item) => Ok(item),
+                None => Err(format!("item not found in dynamo_db")),
+            }
+        },
+        Err(_) => Err(format!("unknown error")),
+    }
 }
 
 pub fn add_item(table_name: &str, attrs: AddItem) -> Result<Add, AddErr> {
