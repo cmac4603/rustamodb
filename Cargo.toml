@@ -11,9 +11,9 @@ documentation = "https://docs.rs/rustamodb/"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-lazy_static = "1.2.0"
-rusoto_core = "0.32.0"
-rusoto_dynamodb = "0.32.0"
+lazy_static = "~1.2.0"
+rusoto_core = "~0.32.0"
+rusoto_dynamodb = "~0.32.0"
 
 [badges]
 travis-ci = { repository = "cmac4603/rustamodb" }
