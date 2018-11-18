@@ -13,15 +13,10 @@ extern crate rustamodb;
 
 fn main() {
     match rustamodb::scan(&"my_dynamodb_table") {
-        Ok(db_scan) => {
-            match db_scan.items {
-                Some(ref items_list) => {
-                    for item in items_list {
-                      println!("{:?}", item);
-                    };
-                },
-                None => println!("no items in db!"),
-            };
+        Ok(scan_output) => {
+            for item in scan_output {
+                println!("{:?}", item);
+            }
         },
         Err(_) => (),
     }

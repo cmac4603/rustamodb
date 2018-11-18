@@ -40,7 +40,8 @@ pub type AddErr = rusoto_dynamodb::PutItemError;
 pub type Del = rusoto_dynamodb::DeleteItemOutput;
 pub type DelErr = rusoto_dynamodb::DeleteItemError;
 
-type AttributeMap = HashMap<String, AttributeValue>;
+pub type AttributeMap = HashMap<String, AttributeValue>;
+pub type Attributes = Vec<AttributeMap>;
 
 pub struct GetItem { pub key: AttributeMap }
 
@@ -48,12 +49,20 @@ pub struct AddItem { pub item: AttributeMap }
 
 pub struct DelItem { pub key: AttributeMap }
 
-pub fn scan(table_name: TableName) -> Result<Scan, ScanErr> {
+pub fn scan(table_name: TableName) -> Result<Vec<AttributeMap>, String> {
     let scan_input: ScanInput = ScanInput {
         table_name: table_name.to_string(),
         ..Default::default()
     };
-    ddb_conn.lock().unwrap().scan(&scan_input).sync()
+    match ddb_conn.lock().unwrap().scan(&scan_input).sync() {
+        Ok(scan_output) => {
+            match scan_output.items {
+                Some(items) => Ok(items),
+                None => Err(format!("no items in db")),
+            }
+        },
+        Err(_) => Err(format!("no db found")),
+    }
 }
 
 pub fn get_item(table_name: TableName, attrs: GetItem) -> Result<Get, GetErr> {
