@@ -7,8 +7,8 @@ _Currently **very** early stages WIP._
 `rustamodb` is inspired by [pynamodb](https://pynamodb.readthedocs.io/en/latest/) and is a simple to use library for AWS DynamoDB.
 
 ## Getting Started
-### To use `rustamodb` in your rust codebade
-In your projects `Cargo.toml` file (find the latest version on [crates.io](https://crates.io/crates/rustamodb)):
+### To use `rustamodb` in your apps codebade
+In your projects `Cargo.toml` file (find the latest version on [crates.io](https://crates.io/crates/rustamodb) or see label above!):
 ```toml
 [dependencies]
 rustamodb = "0.0.6"
@@ -29,6 +29,12 @@ fn main() {
         Err(_) => (),
     }
 }
+```
+
+### To use & develop `rustamodb` locally with an apps codebade
+```toml
+[dependencies]
+rustamodb = { path = "../../gitrepos/rustamodb" }
 ```
 _More documentation to come... see the [docs.rs](https://docs.rs/rustamodb/) page_
 
