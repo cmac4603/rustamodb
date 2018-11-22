@@ -28,7 +28,7 @@ pub use self::ops::{
     AttributeMap,
     scan, Scan, ScanErr, RustamoDbScanOutput,
     get_item, Get, GetItem, GetErr, RustamoDbGetOutput,
-    add_item, Add, AddItem, AddErr,
+    add_item, Add, AddItem, AddErr, RustamoDbAddOutput,
     del_item, Del, DelItem, DelErr,
     RustamoDbError,
 };

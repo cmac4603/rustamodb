@@ -12,7 +12,7 @@ use rusoto_dynamodb::{
 };
 
 lazy_static! {
-    static ref ddb_conn: Arc<Mutex<DynamoDbClient>> = {
+    static ref client: Arc<Mutex<DynamoDbClient>> = {
         if let Ok(endpoint) = env::var("DYNAMODB_ENPOINT") {
             Arc::new(Mutex::new(DynamoDbClient::simple(
                 Region::Custom {
@@ -44,6 +44,7 @@ pub type AttributeMap = HashMap<String, AttributeValue>;
 
 pub type RustamoDbScanOutput = Vec<AttributeMap>;
 pub type RustamoDbGetOutput = AttributeMap;
+pub type RustamoDbAddOutput = AttributeMap;
 
 pub type RustamoDbError = String;
 
@@ -54,11 +55,12 @@ pub struct AddItem { pub item: AttributeMap }
 pub struct DelItem { pub key: AttributeMap }
 
 pub fn scan(table_name: TableName) -> Result<RustamoDbScanOutput, RustamoDbError> {
+    // TODO: enable pagination of results or think of a way to handle this
     let scan_input: ScanInput = ScanInput {
         table_name: table_name.to_string(),
         ..Default::default()
     };
-    match ddb_conn.lock().unwrap().scan(&scan_input).sync() {
+    match client.lock().unwrap().scan(&scan_input).sync() {
         Ok(scan_output) => {
             match scan_output.items {
                 Some(items) => Ok(items),
@@ -75,7 +77,7 @@ pub fn get_item(table_name: TableName, attrs: GetItem) -> Result<RustamoDbGetOut
         key: attrs.key,
         ..Default::default()
     };
-    match ddb_conn.lock().unwrap().get_item(&get_item_input).sync() {
+    match client.lock().unwrap().get_item(&get_item_input).sync() {
         Ok(get_output) => {
             match get_output.item {
                 Some(item) => Ok(item),
@@ -86,13 +88,21 @@ pub fn get_item(table_name: TableName, attrs: GetItem) -> Result<RustamoDbGetOut
     }
 }
 
-pub fn add_item(table_name: &str, attrs: AddItem) -> Result<Add, AddErr> {
+pub fn add_item(table_name: &str, attrs: AddItem) -> Result<RustamoDbAddOutput, RustamoDbError> {
     let add_item_input: PutItemInput = PutItemInput {
         table_name: table_name.to_string(),
         item: attrs.item,
         ..Default::default()
     };
-    ddb_conn.lock().unwrap().put_item(&add_item_input).sync()
+    match client.lock().unwrap().put_item(&add_item_input).sync() {
+        Ok(add_item_output) => {
+            match add_item_output.attributes {
+                Some(item) => Ok(item),
+                None => Err(format!("no attributes found for item added")),
+            }
+        },
+        Err(_) => Err(format!("unable to add item to db")),
+    }
 }
 
 pub fn del_item(table_name: &str, attrs: DelItem) -> Result<Del, DelErr> {
@@ -101,5 +111,5 @@ pub fn del_item(table_name: &str, attrs: DelItem) -> Result<Del, DelErr> {
         key: attrs.key,
         ..Default::default()
     };
-    ddb_conn.lock().unwrap().delete_item(&del_item_input).sync()
+    client.lock().unwrap().delete_item(&del_item_input).sync()
 }
