@@ -29,6 +29,6 @@ pub use self::ops::{
     scan, Scan, ScanErr, RustamoDbScanOutput,
     get_item, Get, GetItem, GetErr, RustamoDbGetOutput,
     add_item, Add, AddItem, AddErr, RustamoDbAddOutput,
-    del_item, Del, DelItem, DelErr,
+    del_item, Del, DelItem, DelErr, RustamoDbDelOutput,
     RustamoDbError,
 };

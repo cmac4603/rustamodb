@@ -45,6 +45,7 @@ pub type AttributeMap = HashMap<String, AttributeValue>;
 pub type RustamoDbScanOutput = Vec<AttributeMap>;
 pub type RustamoDbGetOutput = AttributeMap;
 pub type RustamoDbAddOutput = AttributeMap;
+pub type RustamoDbDelOutput = AttributeMap;
 
 pub type RustamoDbError = String;
 
@@ -105,11 +106,19 @@ pub fn add_item(table_name: &str, attrs: AddItem) -> Result<RustamoDbAddOutput, 
     }
 }
 
-pub fn del_item(table_name: &str, attrs: DelItem) -> Result<Del, DelErr> {
+pub fn del_item(table_name: &str, attrs: DelItem) -> Result<RustamoDbDelOutput, RustamoDbError> {
     let del_item_input: DeleteItemInput = DeleteItemInput {
         table_name: table_name.to_string(),
         key: attrs.key,
         ..Default::default()
     };
-    client.lock().unwrap().delete_item(&del_item_input).sync()
+    match client.lock().unwrap().delete_item(&del_item_input).sync() {
+        Ok(del_item_output) => {
+            match del_item_output.attributes {
+                Some(item) => Ok(item),
+                None => Err(format!("no attributes found for item added")),
+            }
+        },
+        Err(_) => Err(format!("unable to add item to db")),
+    }
 }
