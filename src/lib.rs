@@ -23,6 +23,7 @@ extern crate rusoto_core;
 extern crate rusoto_dynamodb;
 
 mod ops;
+pub mod models;
 
 pub use self::ops::{
     AttributeMap,
@@ -31,4 +32,8 @@ pub use self::ops::{
     add_item, Add, AddItem, AddErr, RustamoDbAddOutput,
     del_item, Del, DelItem, DelErr, RustamoDbDelOutput,
     RustamoDbError,
+};
+
+pub use self::models::{
+    DynamoValue, DynamoDbAttribute,
 };
