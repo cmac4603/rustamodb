@@ -1,5 +1,5 @@
-use std::env;
 use std::collections::HashMap;
+use std::env;
 use std::sync::{Mutex, Arc};
 
 use rusoto_core::Region;
@@ -10,21 +10,6 @@ use rusoto_dynamodb::{
     ScanInput,
     PutItemInput,
 };
-
-lazy_static! {
-    static ref client: Arc<Mutex<DynamoDbClient>> = {
-        if let Ok(endpoint) = env::var("DYNAMODB_ENPOINT") {
-            Arc::new(Mutex::new(DynamoDbClient::simple(
-                Region::Custom {
-                    name: env::var("AWS_DEFAULT_REGION").unwrap_or(format!("us-east-1")),
-                    endpoint: endpoint.to_string(),
-                },
-            )))
-        } else {
-            Arc::new(Mutex::new(DynamoDbClient::simple(Region::default())))
-        }
-    };
-}
 
 type TableName = &'static str;
 
@@ -46,6 +31,7 @@ pub type RustamoDbScanOutput = Vec<AttributeMap>;
 pub type RustamoDbGetOutput = AttributeMap;
 pub type RustamoDbAddOutput = AttributeMap;
 pub type RustamoDbDelOutput = AttributeMap;
+pub type RustamoDbOutput = AttributeMap;
 
 pub type RustamoDbError = String;
 
@@ -54,6 +40,21 @@ pub struct GetItem { pub key: AttributeMap }
 pub struct AddItem { pub item: AttributeMap }
 
 pub struct DelItem { pub key: AttributeMap }
+
+lazy_static! {
+    static ref client: Arc<Mutex<DynamoDbClient>> = {
+        if let Ok(endpoint) = env::var("DYNAMODB_ENPOINT") {
+            Arc::new(Mutex::new(DynamoDbClient::simple(
+                Region::Custom {
+                    name: env::var("AWS_DEFAULT_REGION").unwrap_or(format!("us-east-1")),
+                    endpoint: endpoint.to_string(),
+                },
+            )))
+        } else {
+            Arc::new(Mutex::new(DynamoDbClient::simple(Region::default())))
+        }
+    };
+}
 
 pub fn scan(table_name: TableName) -> Result<RustamoDbScanOutput, RustamoDbError> {
     // TODO: enable pagination of results or think of a way to handle this
@@ -89,36 +90,42 @@ pub fn get_item(table_name: TableName, attrs: GetItem) -> Result<RustamoDbGetOut
     }
 }
 
+trait Attributes {
+    fn collect(self) -> Result<RustamoDbOutput, RustamoDbError>;
+}
+
+impl Attributes for Option<AttributeMap> {
+    fn collect(self) -> Result<RustamoDbOutput, RustamoDbError> {
+        match self {
+            Some(item) => Ok(item),
+            None => Err(format!("no attributes found")),
+        }
+    }
+}
+
+
 pub fn add_item(table_name: &str, attrs: AddItem) -> Result<RustamoDbAddOutput, RustamoDbError> {
+    // TODO: the following will be a rustamodb model type
     let add_item_input: PutItemInput = PutItemInput {
         table_name: table_name.to_string(),
         item: attrs.item,
         ..Default::default()
     };
     match client.lock().unwrap().put_item(&add_item_input).sync() {
-        Ok(add_item_output) => {
-            match add_item_output.attributes {
-                Some(item) => Ok(item),
-                None => Err(format!("no attributes found for item added")),
-            }
-        },
-        Err(_) => Err(format!("unable to add item to db")),
+        Ok(add_item_output) => Attributes::collect(add_item_output.attributes),
+        Err(error) => Err(error.to_string()),
     }
 }
 
 pub fn del_item(table_name: &str, attrs: DelItem) -> Result<RustamoDbDelOutput, RustamoDbError> {
+    // TODO: the following will be a rustamodb model type
     let del_item_input: DeleteItemInput = DeleteItemInput {
         table_name: table_name.to_string(),
         key: attrs.key,
         ..Default::default()
     };
     match client.lock().unwrap().delete_item(&del_item_input).sync() {
-        Ok(del_item_output) => {
-            match del_item_output.attributes {
-                Some(item) => Ok(item),
-                None => Err(format!("no attributes found for item added")),
-            }
-        },
-        Err(_) => Err(format!("unable to add item to db")),
+        Ok(del_item_output) => Attributes::collect(del_item_output.attributes),
+        Err(error) => Err(error.to_string()),
     }
 }
